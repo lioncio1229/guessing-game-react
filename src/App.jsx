@@ -1,14 +1,22 @@
 import { useRef, useState } from "react";
 import Button from "./Button";
 import "./App.css";
+import WinSound from './asset/win.mp3';
+import LoseSound from './asset/lose.mp3';
+import VibrateSound from './asset/vibrate.mp3';
 
 function App() {
   const range = 8;
   const [hiddenNumber, setHiddenNumber] = useState(
     Math.floor(Math.random() * 100)
   );
-  console.log("hiddenNumber: " + hiddenNumber);
+
   const inputRef = useRef("");
+  
+  const winSoundRef = useRef("");
+  const loseSoundRef = useRef("");
+  const vibrateSoundRef = useRef("");
+
   const [guess, setGuess] = useState("Guess the number!");
   const [historyResult, setHistoryResult] = useState("");
   const [lives, setLives] = useState(5);
@@ -18,7 +26,6 @@ function App() {
   });
 
   const btnGuess = () => {
-    
     let input = inputRef.current;
 
     if(btnValue.label == 'Play Again' || btnValue.label == 'Try Again')
@@ -35,12 +42,14 @@ function App() {
     let _lives = lives;
 
     if (hiddenNumber == guessNumber) {
+      winSoundRef.current.play();
       message = "You win!";
       setHiddenNumber(Math.floor(Math.random() * 100));
       setHistoryResult("Win");
       setBtnValue({bg:"green", label: "Play Again"})
     }
     else if (guessNumber > hiddenNumber) {
+      vibrateSoundRef.current.play();
       message = "To High!";
       if(guessNumber <= hiddenNumber + range)
       {
@@ -49,6 +58,7 @@ function App() {
       _lives -= 1;
     } 
     else if (guessNumber < hiddenNumber) {
+      vibrateSoundRef.current.play();
       message = "To Low!";
       if(guessNumber >= hiddenNumber - range){
         message = "Make it higher";
@@ -57,6 +67,7 @@ function App() {
     }
 
     if (_lives === 0) {
+      loseSoundRef.current.play();
       message = "You Lose! Please try again.";
       setHistoryResult("Lose");
       setHiddenNumber(Math.floor(Math.random() * 100));
@@ -72,6 +83,17 @@ function App() {
 
   return (
     <div>
+
+      <audio ref={winSoundRef}>
+        <source src={WinSound}/>
+      </audio>
+      <audio ref={loseSoundRef}>
+        <source src={LoseSound}></source>
+      </audio>
+      <audio ref={vibrateSoundRef}>
+          <source src={VibrateSound} />
+      </audio>
+
       <div className="hearts-con">
         {
           Array.from({length: lives}, (value, index) => (
